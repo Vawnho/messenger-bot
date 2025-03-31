@@ -1,23 +1,21 @@
-import dotenv from "dotenv";
 import express from "express";
-import bodyParser from "body-parser";
+import dotenv from "dotenv";
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 8080; // Đổi mặc định thành 4000
+const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 
-app.use(bodyParser.json());
+app.use(express.json());
 
 // Endpoint xác minh Webhook với Facebook
 app.get("/webhook", (req, res) => {
-    const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
-
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
     const challenge = req.query["hub.challenge"];
 
-    if (mode && token === VERIFY_TOKEN) {
+    if (mode === "subscribe" && token === VERIFY_TOKEN) {
         console.log("WEBHOOK VERIFIED");
         res.status(200).send(challenge);
     } else {
@@ -31,7 +29,7 @@ app.post("/webhook", (req, res) => {
     res.sendStatus(200);
 });
 
-// Chạy server
+// Chạy server trên cổng 4000
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
